@@ -16,13 +16,4 @@ services:
     environment:
       APP_ENV: prod
       APP_DEBUG: 0
-    command: >
-      sh -c "
-      mkdir -p var &&
-      chown -R www-data:www-data var vendor &&
-      chmod -R 775 var &&
-      php bin/console cache:clear --env=prod &&
-      php bin/console cache:warmup --env=prod &&
-      apache2-foreground
-      "
     # No volumes — safe for production
