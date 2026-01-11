@@ -5,8 +5,8 @@ services:
       dockerfile: docker/apache/Dockerfile
     container_name: iplocalize_app
     ports:
-      - "80:80"     # for HTTP
-      - "443:443"   # for HTTPS
+      - "80:80" # for HTTP
+      - "443:443" # for HTTPS
     # Mount SSL certificates (read-only)
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
@@ -16,4 +16,10 @@ services:
     environment:
       APP_ENV: prod
       APP_DEBUG: 0
+    command: >
+      sh -c "
+      php bin/console cache:clear --env=prod &&
+      php bin/console cache:warmup --env=prod &&
+      apache2-foreground
+      "
     # No volumes — safe for production

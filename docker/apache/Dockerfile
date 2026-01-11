@@ -21,11 +21,15 @@ RUN a2ensite 000-default.conf default-ssl.conf
 # Set working directory
 WORKDIR /var/www/html
 
-# 👇 Copy entire Symfony project
+# Copy entire Symfony project
 COPY . .
 
-# ✅ Now everything (bin/, src/, vendor/) is there
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+# Now everything (bin/, src/, vendor/) is there
+RUN composer install \
+    --no-interaction \
+    --prefer-dist \
+    --optimize-autoloader \
+    --no-scripts
 
 # uncomment this if you dont want to push /public/build and build it manually on prod server
 # Install Node.js + yarn + build frontend assets
