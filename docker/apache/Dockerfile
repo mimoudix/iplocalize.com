@@ -39,6 +39,6 @@ EXPOSE 80 443
 RUN chown -R www-data:www-data var vendor
 RUN chmod -R 775 var
 
-# Clear and warm up cache
-RUN php bin/console cache:clear
-RUN php bin/console cache:warmup
+# # Clear and warm up cache
+# RUN php bin/console cache:clear
+# RUN php bin/console cache:warmup
