@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <path d="M32 2C18.7 2 8 12.7 8 26c0 18 24 36 24 36s24-18 24-36c0-13.3-10.7-24-24-24z" fill="#2563EB"/>
+  <circle cx="32" cy="26" r="14" fill="#ffffff"/>
+  <text x="32" y="31" font-family="Arial, sans-serif" font-weight="bold" font-size="14" text-anchor="middle" fill="#2563EB">IP</text>
+</svg>
