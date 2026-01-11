@@ -1,0 +1,76 @@
+<nav id="LandingHeader"
+     class="z-[150] fixed top-0 w-full px-2 mx-auto sm:px-4 md:bg-opacity-90 dark:bg-gray-800 bg-white/30 backdrop-blur-2xl shadow-lg">
+    <div class="w-full lg:max-w-7xl mx-auto px-[15px] flex items-center h-[64px] ">
+        <div class="flex-none mr-auto flex items-center gap-3">
+            <a class="text-slate-900 dark:text-gray-300" href="#">
+            IPLocalize<span class="text-blue-600 dark:text-blue-500">.com</span>
+        </a>
+            <a href="https://www.linkedin.com/in/mimoudix/" target="_blank"><span class="block mt-1 ml-1 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">Made with ❤️ by mimoudix</span></a>
+        </div>
+        <button x-data="{ open: false }" data-hs-overlay="#mobile-landing-menu"
+                class="relative w-10 h-10 text-gray-800 cursor-pointer dark:text-gray-200 lg:hidden focus:outline-none"
+                @click="open = !open" aria-expanded="false">
+            <div class="absolute block w-5 transform -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2">
+                    <span aria-hidden="true"
+                          class="block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out -translate-y-1.5"
+                          :class="{'rotate-45': open,' -translate-y-1.5': !open }"></span>
+                <span aria-hidden="true"
+                      class="block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out"
+                      :class="{'opacity-0': open } "></span>
+                <span aria-hidden="true"
+                      class="block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out translate-y-1.5"
+                      :class="{'-rotate-45': open, ' translate-y-1.5': !open}"></span>
+            </div>
+        </button>
+        <div class="hidden text-gray-900 dark:text-gray-300 lg:flex lg:items-center text-[15px] leading-[27px]">
+            <a href="/api/doc">Docs</a>
+        </div>
+        <div class="hidden space-x-4 text-gray-900 lg:ml-8 lg:flex lg:items-center lg:border-l lg:border-slate-900/15 lg:pl-8 dark:text-gray-300">
+            <a href="https://www.linkedin.com/in/mimoudix/" target="_blank" class="text-[15px]">Contact</a>
+            <a class="inline-flex justify-center rounded-lg text-sm font-semibold py-2.5 px-4 bg-blue-600 text-white hover:bg-blue-700 -my-2.5 ml-8"
+               href="https://www.paypal.com/paypalme/mohcinemimoudi">
+                    <span>Buy me a coffee <i class="fa-solid fa-mug-hot"></i>
+                    </span>
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div id="mobile-landing-menu"
+     class="font-light z-[100] w-full h-full bg-white flex-col  fixed overflow-auto shadow-[5px_0_30px_rgba(189,189,191,0.15)] left-0 right-auto inset-y-0 hs-overlay hs-overlay-open:translate-x-0 -translate-x-full transition-all duration-300 transform hidden top-0 bottom-0 border-r border-gray-200  overflow-y-auto scrollbar-y  lg:translate-x-0  dark:scrollbar-y dark:bg-gray-800 text-gray-900 dark:text-gray-200 dark:border-gray-700">
+    <div class="flex flex-col h-full overflow-auto">
+        <div class="flex items-center justify-center h-screen ">
+            <div class="flex flex-col items-center justify-between space-y-10">
+                <a href="/api/doc"
+                   class=" tracking-[0.5px] items-center text-[35px]  leading-[1em]  flex w-inline-block ">
+                    <div>Docs</div>
+                </a>
+                <a href="https://www.paypal.com/paypalme/mohcinemimoudi" target="_blank"
+                   class=" tracking-[0.5px] items-center text-[35px]  leading-[1em]  flex w-inline-block ">
+                    <div>Buy me a coffee</div>
+                </a>
+            </div>
+            <div class="absolute bottom-0 text-[#cfcfcf] font-sans font-light text-center justify-center items-center flex flex-col px-2.5 py-5 border-t gap-2">
+                <span>Made with ❤️ in Morocco, © {{ "now"|date("Y") }} IPLocalize.com</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const header = document.getElementById('LandingHeader');
+
+    if (window.scrollY > 0) {
+        header.classList.add("bg-white/30", "backdrop-blur-2xl", "shadow-lg");
+    } else {
+        header.classList.remove("bg-white/30", "backdrop-blur-2xl", "shadow-lg");
+    }
+
+    window.addEventListener("scroll", function () {
+        if (window.scrollY > 0) {
+            header.classList.add("bg-white/30", "backdrop-blur-2xl", "shadow-lg");
+        } else {
+            header.classList.remove("bg-white/30", "backdrop-blur-2xl", "shadow-lg");
+        }
+    });
+</script>

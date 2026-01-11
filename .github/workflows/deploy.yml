@@ -1,0 +1,46 @@
+name: Deploy to Lightsail
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Rsync project to Lightsail
+        run: |
+          rsync -avz --delete \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude '.env*' \
+            ./ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/home/ubuntu/iplocalize
+
+      - name: SSH and run docker-compose up
+        run: |
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
+            cd ~/iplocalize
+            echo "Creating .env from GitHub secret..."
+            echo "${{ secrets.ENV_FILE_CONTENTS }}" > .env
+            docker-compose down
+            # Clean up old images, containers, networks, and cache
+            docker system prune -af --volumes=false
+            docker builder prune -f
+            docker-compose up -d --build --force-recreate
+          EOF

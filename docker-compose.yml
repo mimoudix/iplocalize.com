@@ -1,0 +1,19 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/apache/Dockerfile
+    container_name: iplocalize_app
+    ports:
+      - "80:80"     # for HTTP
+      - "443:443"   # for HTTPS
+    # Mount SSL certificates (read-only)
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    # ✅ Load all environment variables from .env (on the server
+    env_file:
+      - .env
+    environment:
+      APP_ENV: prod
+      APP_DEBUG: 0
+    # No volumes — safe for production

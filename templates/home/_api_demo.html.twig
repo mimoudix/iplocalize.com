@@ -1,0 +1,176 @@
+<section class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto text-center"><h1
+                class="text-4xl md:text-6xl font-bold text-gray-900 text-gray-900 mb-6 dark:text-gray-200">
+            Locate Any IP Address<span class="text-blue-600"> Instantly</span></h1>
+        <p class="text-md text-gray-600 mb-12 dark:text-gray-400 max-w-2xl mx-auto">Get precise geolocation data for any
+            IP address.
+            Perfect for security, analytics, and personalization.</p>
+        <div class="max-w-2xl mx-auto mb-12 bg-white rounded-xl shadow-xl border border-gray-200">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         class="lucide lucide-map-pin h-5 w-5 text-blue-600">
+                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    Your IP Address :
+                </h3>
+                <p class="text-sm mt-1">
+                    <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-3xl text-[#50565e] font-montserrat font-semibold">{{ client_ip }}</span>
+                </p>
+            </div>
+            <div class="p-6 space-y-6">
+                <div class="flex gap-2">
+                    <input id="checkIp"
+                           class="flex-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Enter IP address (e.g., 8.8.8.8)" type="text" value="{{ client_ip }}">
+                    <button id="checkIpButton"
+                            class="inline-flex cursor-pointer items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round" class="lucide lucide-search h-4 w-4 mr-2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.3-4.3"></path>
+                        </svg>
+                        Lookup
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                    <div class="space-y-3">
+
+                        <div class="flex justify-between">
+                            <span class="font-medium text-gray-700">Country:</span>
+                            <div><span id="flag-icon-country" class="flag-icon flag-icon-{{ country_code2 }} text-sm"></span>
+                                <span id="country-response">{{ country }}</span></div>
+                        </div>
+                        <div class="flex justify-between"><span
+                                    class="font-medium text-gray-700">Region:</span><span
+                                    id="region-response">{{ region }}</span>
+                        </div>
+                        <div class="flex justify-between"><span class="font-medium text-gray-700">City:</span><span
+                                    id="city-response">{{ city }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="font-medium text-gray-700">Is in European Union:</span>
+                            <div>
+                                <span id="is-eu-response">{{ is_eu }}</span></div>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="font-medium text-gray-700">Currency:</span>
+                            <div>
+                                <span id="currency-name-response">{{ currency_name }}</span></div>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex justify-between"><span
+                                    class="font-medium text-gray-700">Latitude:</span><span
+                                    id="latitude-response">{{ latitude }}</span></div>
+                        <div class="flex justify-between"><span
+                                    class="font-medium text-gray-700">Longitude:</span><span
+                                    id="longtitude-response">{{ longitude }}</span></div>
+                        <div class="flex justify-between"><span
+                                    class="font-medium text-gray-700">Timezone:</span><span
+                                    id="timezone-response">{{ timezone }}</span>
+                        </div>
+                        <div class="flex justify-between"><span class="font-medium text-gray-700">ASN:</span><span
+                                    id="asn-response"
+                                    class="text-sm">{{ asn_organization }}</span>
+                        </div>
+                        <div class="flex justify-between"><span
+                                    class="font-medium text-gray-700">Currency Symbol:</span><span
+                                    id="currency-symbol-response"
+                                    class="text-sm">{{ currency_symbol }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="ipLookupEndpoint" value="{{ IpLookupEndpoint|e('html_attr') }}">
+</section>
+
+<script>
+    (function () {
+        const input   = document.getElementById("checkIp");
+        const button  = document.getElementById("checkIpButton");
+        const flagEl  = document.getElementById("flag-icon-country");
+        const endpointInput = document.getElementById("ipLookupEndpoint");
+
+        if (!endpointInput) {
+            console.error("Missing #ipLookupEndpoint hidden input");
+            return;
+        }
+
+        const ipLookupEndpoint = (endpointInput.value || "").trim();
+
+        function buildUrl(base, ip) {
+            const clean = base.replace(/\/+$/, ""); // strip trailing slashes
+            const pathHasLookup = /\/lookup\/?$/.test(clean);
+            return pathHasLookup
+                ? `${clean}/${encodeURIComponent(ip)}`
+                : `${clean}/lookup/${encodeURIComponent(ip)}`;
+        }
+
+        async function fetchIpDetails() {
+            const ip = (input?.value || "").trim();
+
+            if (!ip) {
+                window.showAlert?.("Invalid IP Address", "Please enter a valid IP address.", "error");
+                return;
+            }
+
+            // optional: very light IP sanity (keeps IPv6 valid too)
+            // if (!/^([0-9a-f:.])+$/i.test(ip)) { ... }
+
+            const url = buildUrl(ipLookupEndpoint, ip);
+
+            try {
+                // loading UX
+                if (button) { button.disabled = true; button.dataset.prev = button.textContent; button.textContent = "Looking up..."; }
+
+                const response = await fetch(url, { headers: { "Accept": "application/json" } });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const data = await response.json();
+
+                if (!data?.success) {
+                    window.showAlert?.("Error", data?.message || "Something went wrong.", "error");
+                    return;
+                }
+
+                // Update UI (safe reads + defaults)
+                const countryCode = (data.country_code2 || "US").toLowerCase();
+                if (flagEl) flagEl.className = `flag-icon flag-icon-${countryCode} text-sm`;
+
+                const byId = (id) => document.getElementById(id);
+                byId("region-response")        && (byId("region-response").textContent        = data.region || "-");
+                byId("longtitude-response")    && (byId("longtitude-response").textContent    = data.longitude ?? "-");
+                byId("latitude-response")      && (byId("latitude-response").textContent      = data.latitude ?? "-");
+                byId("timezone-response")      && (byId("timezone-response").textContent      = data.timezone || "-");
+                byId("country-response")       && (byId("country-response").textContent       = data.country || "-");
+                byId("city-response")          && (byId("city-response").textContent          = data.city || "-");
+                byId("asn-response")           && (byId("asn-response").textContent           = data.asn_organization || "-");
+                byId("is-eu-response")         && (byId("is-eu-response").textContent         = (data.is_eu ?? "-") + "");
+                byId("currency-name-response") && (byId("currency-name-response").textContent = data.currency?.name || "-");
+                byId("currency-symbol-response")&& (byId("currency-symbol-response").textContent = data.currency?.symbol || "-");
+
+            } catch (error) {
+                console.error(error);
+                window.showAlert?.("Something went wrong", "Please try again later.", "error");
+            } finally {
+                if (button) { button.disabled = false; button.textContent = button.dataset.prev || "Lookup"; }
+            }
+        }
+
+        // events
+        button?.addEventListener("click", fetchIpDetails);
+        input?.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                fetchIpDetails();
+            }
+        });
+    })();
+</script>

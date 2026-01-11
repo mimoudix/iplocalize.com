@@ -1,0 +1,13 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@import "../../node_modules/preline/variants.css";
+@source "../../node_modules/preline/dist/*.js";
+
+@import "@fontsource/montserrat"; /* default weight 400 */
+@import "@fontsource/montserrat/700.css"; /* bold weight */
+@theme {
+    --font-montserrat: "Montserrat", sans-serif;
+}
+
+

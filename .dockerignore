@@ -1,0 +1,7 @@
+/var/
+/vendor/
+/.git
+.gitignore
+Dockerfile
+docker-compose.yml
+.env.local
