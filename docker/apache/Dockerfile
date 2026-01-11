@@ -40,8 +40,8 @@ RUN yarn encore production
 
 EXPOSE 80 443
 
-RUN chown -R www-data:www-data var vendor
-RUN chmod -R 775 var
+# RUN chown -R www-data:www-data var vendor
+# RUN chmod -R 775 var
 
 # # Clear and warm up cache
 # RUN php bin/console cache:clear
