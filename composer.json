@@ -24,6 +24,7 @@
         "symfony/framework-bundle": "6.4.*",
         "symfony/lock": "6.4.*",
         "symfony/maker-bundle": "*",
+        "symfony/monolog-bundle": "^3.11",
         "symfony/rate-limiter": "6.4.*",
         "symfony/runtime": "6.4.*",
         "symfony/security-bundle": "6.4.*",
