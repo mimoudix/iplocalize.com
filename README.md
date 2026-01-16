@@ -90,7 +90,7 @@ Add the following line to renew the certificate and restart the container every 
 To keep the IP database fresh, add this cron job to update it weekly (e.g., Mondays at 2 AM).
 
 ```cron
-0 2 * * 1 php /var/www/html/bin/console app:geoip:update >> /dev/null 2>&1
+0 2 * * 1 docker exec iplocalize_app php bin/console app:geoip:update >> /dev/null 2>&1
 ```
 *(Note: Ensure this runs inside the container or php is available on host)*
 
