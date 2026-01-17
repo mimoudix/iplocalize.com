@@ -32,12 +32,12 @@ Initialize the environment file:
 
 Update the environment variables to match your local setup:
 
-    | Variable              | Description                                                                                    | Example                          |
-    | :-------------------- | :--------------------------------------------------------------------------------------------- | :------------------------------- |
-    | `APP_ENV`             | Application environment (`dev` or `prod`).                                                     | `dev`                            |
-    | `IP_LOOKUP_ENDPOINT`  | Endpoint for IP lookups. If using Docker, this might point to a local service or external API. | `http://localhost/api/v1/lookup` |
-    | `LOCK_DSN`            | Helper for lock management.                                                                    | `flock`                          |
-    | `MAXMIND_LICENSE_KEY` | Your MaxMind license key for GeoIP updates.                                                    | `YOUR_KEY_HERE`                  |
+| Variable | Description | Example |
+| :--- | :--- | :--- |
+| `APP_ENV` | Application environment (`dev` or `prod`). | `dev` |
+| `IP_LOOKUP_ENDPOINT` | Endpoint for IP lookups. If using Docker, this might point to a local service or external API. | `http://localhost/api/v1/lookup` |
+| `LOCK_DSN` | Helper for lock management. | `flock` |
+| `MAXMIND_LICENSE_KEY` | Your MaxMind license key for GeoIP updates. | `YOUR_KEY_HERE` |
 
 **Create `docker-compose.override.yml` file:**
 
@@ -81,7 +81,13 @@ This project uses Symfony Webpack Encore. Use the following commands to manage a
 
 Follow these steps to deploy the application on a live server.
 
-### 1. System Prerequisites
+### Prerequisites:
+
+#### A server running Ubuntu.
+
+#### A valid domain name (e.g., iplocalize.com) pointing to your server's IP address.
+
+### 1. System Setup
 
 Ensure your system is updated and has **Docker** and **Docker Compose** installed.
 
@@ -92,58 +98,97 @@ sudo apt install -y docker.io docker-compose
 Add your user to the docker group.
 
 ```bash
-sudo usermod -aG docker ubuntu
+sudo usermod -aG docker $USER
 newgrp docker
 ```
 
-### 2. Install Git
+### 2. Install Git & Certbot
 
 ```bash
 sudo apt update
-sudo apt-get install git
+sudo apt install -y git certbot
 ```
 
-### 3. Clone the Repository
+### 3. Generate SSL Certificates (Before Build)
 
-Clone the project and navigate to the directory:
+Generate your certificates now while Port 80 is free.
+
+Replace iplocalize.com with your actual domain.
+
+IMPORTANT: When Certbot finishes, it will output a path where the keys are saved, usually: /etc/letsencrypt/live/yourdomain.com/ Copy this domain name/path, as you will need to paste it in Step 6.
+
+```bash
+sudo certbot certonly --standalone -d yourdomain.com -d www.yourdomain.com
+```
+
+(This creates the certificates in /etc/letsencrypt, which Docker will mount automatically in the next steps.)
+
+### 4. Clone & Configure
+
+Clone the repository:
 
 ```bash
 git clone https://github.com/mimoudix/iplocalize.com.git
-```
-Navigate to the project directory:
-
-```bash
 cd iplocalize.com
 ```
-
-### 3. Configuration 
-Initialize the environment file:
-
-**Create `.env` file:**
+Setup Environment:
 
   ```bash
   cp .env.dist .env
   ```
 
-**Configure `.env`:**
+Configure your .env variables (ensure APP_ENV=prod):
 
-Update the environment variables for production:
+| Variable | Description | Example |
+| :--- | :--- | :--- |
+| `APP_ENV` | Application environment (`dev` or `prod`). | `prod` |
+| `IP_LOOKUP_ENDPOINT` | Endpoint for IP lookups. If using Docker, this might point to a local service or external API. | `http://localhost/api/v1/lookup` |
+| `LOCK_DSN` | Helper for lock management. | `flock` |
+| `MAXMIND_LICENSE_KEY` | Your MaxMind license key for GeoIP updates. | `YOUR_KEY_HERE` |
 
-    | Variable              | Description                                                                                    | Example                          |
-    | :-------------------- | :--------------------------------------------------------------------------------------------- | :------------------------------- |
-    | `APP_ENV`             | Application environment (`dev` or `prod`).                                                     | `dev`                            |
-    | `IP_LOOKUP_ENDPOINT`  | Endpoint for IP lookups. If using Docker, this might point to a local service or external API. | `http://localhost/api/v1/lookup` |
-    | `LOCK_DSN`            | Helper for lock management.                                                                    | `flock`                          |
-    | `MAXMIND_LICENSE_KEY` | Your MaxMind license key for GeoIP updates.                                                    | `YOUR_KEY_HERE`                  |
+### 5. Build & Start
 
-### 4. Build & Launch
-
-**Build and start the containers in detached mode: :**
+Now that certificates exist, build and start the containers.
 
   ```bash
   docker-compose up -d --build
   ```
-### 4. Maintenance
+### 6. Finalize SSL Configuration
+
+
+Run these commands one by one to configure Apache inside the container. This enables SSL, points it to your certificates, and sets the correct public folder.
+
+⚠️ Critical Step: In the commands below, replace yourdomain.com with the specific folder name you noted in Step 3.
+
+Enable SSL Module:
+
+```bash
+docker exec iplocalize_app a2enmod ssl
+```
+
+Update Certificate Paths: (Replace yourdomain.com with your actual domain folder)
+
+```bash
+docker exec iplocalize_app sed -i 's|/etc/ssl/certs/ssl-cert-snakeoil.pem|/etc/letsencrypt/live/yourdomain.com/fullchain.pem|g' /etc/apache2/sites-available/default-ssl.conf
+```
+```bash
+docker exec iplocalize_app sed -i 's|/etc/ssl/private/ssl-cert-snakeoil.key|/etc/letsencrypt/live/yourdomain.com/privkey.pem|g' /etc/apache2/sites-available/default-ssl.conf
+```
+
+Set Correct Public Directory:
+
+```bash
+docker exec iplocalize_app sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/default-ssl.conf
+```
+
+Enable Site & Reload:
+
+```bash
+docker exec iplocalize_app a2ensite default-ssl
+docker exec iplocalize_app service apache2 reload
+```
+
+### 7. Maintenance
 
 **Update GeoIP Database:**
 
