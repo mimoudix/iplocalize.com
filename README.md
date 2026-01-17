@@ -1,18 +1,36 @@
 # IPLocalize
 
-This project is a Symfony-based application for IP localization, dockerized for easy deployment.
+IPLocalize is a containerized Symfony application designed for IP localization. It is fully Dockerized to ensure streamlined deployment and ease of use.
 
-## ⚙️ Configuration
+## 🤝 Contributing & Development Setup
 
-After cloning the project or before building the containers, configure your environment variables.
+To set up the project for local development, ensure that **Docker** is installed on your machine.
 
-1.  **Create `.env` file:**
+### 1. Clone the Repository
 
-    ```bash
-    cp .env.dist .env
-    ```
+Clone the project and navigate to the directory:
 
-2.  **Configure `.env`:**
+```bash
+git clone https://github.com/mimoudix/iplocalize.com.git
+```
+Navigate to the project directory:
+
+```bash
+cd iplocalize.com
+```
+
+### 2. Configuration
+Initialize the environment file:
+
+**Create `.env` file:**
+
+  ```bash
+  cp .env.dist .env
+  ```
+
+**Configure `.env`:**
+
+Update the environment variables to match your local setup:
 
     | Variable              | Description                                                                                    | Example                          |
     | :-------------------- | :--------------------------------------------------------------------------------------------- | :------------------------------- |
@@ -21,62 +39,49 @@ After cloning the project or before building the containers, configure your envi
     | `LOCK_DSN`            | Helper for lock management.                                                                    | `flock`                          |
     | `MAXMIND_LICENSE_KEY` | Your MaxMind license key for GeoIP updates.                                                    | `YOUR_KEY_HERE`                  |
 
----
+**Create `docker-compose.override.yml` file:**
 
-## 🤝 Contributing & Installation
+  ```bash
+  cp docker-compose.override.yml.dist docker-compose.override.yml
+  ```
+   Note: This override file mounts the project source into the container and sets APP_ENV=dev with APP_DEBUG=1 to facilitate debugging and faster iteration during development.
 
-To set up the project for development, ensure you have **Docker**, **Node.js**, and **NPM** installed.
+### 3. Build & Start
 
-### 1. Installation
-
-Clone the repository and install dependencies:
-
-```bash
-git clone https://github.com/mimoudix/iplocalize.com.git
-cd iplocalize
-```
-
-**Start the Application:**
-Start the backend services (Database, App) using Docker:
+**Build and start the containers :**
 
 ```bash
 docker-compose up -d
 ```
 
-**Install Frontend Dependencies:**
-
-```bash
-npm install
-```
-
-### 2. Asset Management (Webpack Encore)
+### 4. Asset Management (Webpack Encore)
 
 This project uses Symfony Webpack Encore. Use the following commands to manage assets:
 
 - **Compile for development:**
 
   ```bash
-  npm run dev
+  docker exec iplocalize_app npm run dev
   ```
 
 - **Compile and watch for changes:**
 
   ```bash
-  npm run watch
+  docker exec iplocalize_app npm run watch
   ```
 
 - **Compile for production:**
   ```bash
-  npm run build
+  docker exec iplocalize_app npm run build
   ```
 
 ---
 
-## 🚀 Hosting on your own
+## 🚀 Production Deployment (Ubuntu VPS)
 
-Follow these steps to deploy the application on your own server.
+Follow these steps to deploy the application on a live server.
 
-### 1. System Setup
+### 1. System Prerequisites
 
 Ensure your system is updated and has **Docker** and **Docker Compose** installed.
 
@@ -84,50 +89,65 @@ Ensure your system is updated and has **Docker** and **Docker Compose** installe
 sudo apt update
 sudo apt install -y docker.io docker-compose
 ```
-
-_(Optional) Add your user to the docker group:_
+Add your user to the docker group.
 
 ```bash
-sudo usermod -aG docker $USER
+sudo usermod -aG docker ubuntu
 newgrp docker
 ```
 
-### 2. Start the Application
-
-Build and start the containers in detached mode:
+### 2. Install Git
 
 ```bash
-docker-compose up -d --build
+sudo apt update
+sudo apt-get install git
 ```
 
-### 3. SSL Configuration (HTTPS)
+### 3. Clone the Repository
 
-We use Certbot to generate and manage free SSL certificates.
-
-**Install Certbot:**
+Clone the project and navigate to the directory:
 
 ```bash
-sudo apt install -y certbot
+git clone https://github.com/mimoudix/iplocalize.com.git
 ```
-
-**Generate Certificate:**
-Ensure port 443 is open, then run:
+Navigate to the project directory:
 
 ```bash
-sudo certbot certonly --standalone -d iplocalize.com --email yourmail@gmail.com --agree-tos
+cd iplocalize.com
 ```
 
-**Automatic Renewal:**
-Add a cron job (`crontab -e`) to renew certificates automatically (e.g., every 3 days):
+### 3. Configuration 
+Initialize the environment file:
 
-```cron
-0 3 */3 * * cd /path/to/iplocalize && docker-compose down ; certbot renew --quiet ; docker-compose up -d
-```
+**Create `.env` file:**
 
+  ```bash
+  cp .env.dist .env
+  ```
+
+**Configure `.env`:**
+
+Update the environment variables for production:
+
+    | Variable              | Description                                                                                    | Example                          |
+    | :-------------------- | :--------------------------------------------------------------------------------------------- | :------------------------------- |
+    | `APP_ENV`             | Application environment (`dev` or `prod`).                                                     | `dev`                            |
+    | `IP_LOOKUP_ENDPOINT`  | Endpoint for IP lookups. If using Docker, this might point to a local service or external API. | `http://localhost/api/v1/lookup` |
+    | `LOCK_DSN`            | Helper for lock management.                                                                    | `flock`                          |
+    | `MAXMIND_LICENSE_KEY` | Your MaxMind license key for GeoIP updates.                                                    | `YOUR_KEY_HERE`                  |
+
+### 4. Build & Launch
+
+**Build and start the containers in detached mode: :**
+
+  ```bash
+  docker-compose up -d --build
+  ```
 ### 4. Maintenance
 
 **Update GeoIP Database:**
-Add a weekly cron job to keep the IP database fresh:
+
+It is recommended to add a weekly cron job to keep the IP database up to date:
 
 ```cron
 0 2 * * 1 docker exec iplocalize_app php bin/console app:geoip:update >> /dev/null 2>&1
