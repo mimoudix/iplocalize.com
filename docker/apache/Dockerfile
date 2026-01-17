@@ -8,15 +8,11 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Enable Apache modules (rewrite & ssl)
-RUN a2enmod rewrite ssl
-
-# Copy custom Apache config to sites-available and enable it
-COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
-COPY docker/apache/default-ssl.conf /etc/apache2/sites-available/default-ssl.conf
+# Enable Apache modules (rewrite)
+RUN a2enmod rewrite
 
 # Enable the sites
-RUN a2ensite 000-default.conf default-ssl.conf
+RUN a2ensite 000-default.conf
 
 # Set working directory
 WORKDIR /var/www/html

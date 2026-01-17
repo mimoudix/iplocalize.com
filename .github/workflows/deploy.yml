@@ -43,4 +43,10 @@ jobs:
             docker system prune -af --volumes=false
             docker builder prune -f
             docker-compose up -d --build --force-recreate
+            docker cp docker/apache/default-ssl.conf iplocalize_app:/etc/apache2/sites-available/default-ssl.conf
+            # enable ssl
+            docker exec iplocalize_app a2enmod ssl
+            docker exec iplocalize_app a2ensite default-ssl.conf
+            # reload apache
+            docker exec iplocalize_app apachectl -k graceful
           EOF
