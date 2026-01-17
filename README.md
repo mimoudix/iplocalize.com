@@ -160,6 +160,11 @@ Run these commands one by one to configure Apache inside the container. This ena
 
 ⚠️ Critical Step: In the commands below, replace yourdomain.com with the specific folder name you noted in Step 3.
 
+💡 Note: Missed the path? Retrieve it anytime using this command:
+
+```bash
+sudo certbot certificates
+```
 Enable SSL Module:
 
 ```bash
@@ -186,6 +191,16 @@ Enable Site & Reload:
 ```bash
 docker exec iplocalize_app a2ensite default-ssl
 docker exec iplocalize_app service apache2 reload
+```
+
+Configure SSL Auto-Renewal (One-Time Setup)
+
+Certbot renews certificates automatically, but it needs permission to stop Docker briefly during the process to free up Port 80. Run this command one time to save this setting:
+
+(Replace yourdomain.com with your actual domain)
+
+```bash
+sudo certbot certonly --standalone --force-renewal -d yourdomain.com -d www.yourdomain.com --pre-hook "docker stop iplocalize_app" --post-hook "docker start iplocalize_app"
 ```
 
 ### 7. Maintenance
