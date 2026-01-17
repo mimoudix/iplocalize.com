@@ -11,6 +11,8 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Enable Apache modules (rewrite)
 RUN a2enmod rewrite
 
+COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
+
 # Enable the sites
 RUN a2ensite 000-default.conf
 
