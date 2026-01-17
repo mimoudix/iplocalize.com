@@ -91,6 +91,7 @@ Follow these steps to deploy the application on a live server.
 - A server running **Ubuntu**.
 - A valid **domain name** (e.g., `iplocalize.com`) pointing to your server's IP address.
 - Port **443** must be open and accessible (check your firewall).
+- A **MaxMind License Key** (free). [Sign up here](https://www.maxmind.com/en/geolite2/signup) to generate a key for GeoIP updates.
 
 ### 1. 🖥️ System Setup
 
