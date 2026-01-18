@@ -6,6 +6,9 @@ IPLocalize is a containerized **Symfony** application designed for IP localizati
 
 To set up the project for local development, ensure that **Docker** is installed on your machine.
 
+### Prerequisites:
+- A **MaxMind License Key** (free). [Sign up here](https://www.maxmind.com/en/geolite2/signup) to generate a key for GeoIP updates.
+
 ### 1. 📂 Clone the Repository
 
 Clone the project and navigate to the directory:
@@ -53,7 +56,26 @@ Build and start the containers:
 docker-compose up -d
 ```
 
-### 4. 📦 Asset Management (Webpack Encore)
+### 4.📥 Install Dependencies (First Run Only)
+
+Because development mode mounts your local folder (which starts empty) over the container, you must run these commands one time to sync the dependencies.
+
+```bash
+# 1. Sync PHP libraries
+docker exec iplocalize_app composer install
+```
+```bash
+# 2. Sync JS libraries
+docker exec iplocalize_app yarn install
+```
+
+```bash
+# 3. Compile assets for the first time
+docker exec iplocalize_app yarn dev
+```
+
+
+### 5. 📦 Asset Management (Webpack Encore)
 
 This project uses **Symfony Webpack Encore**. Use the following commands to manage assets:
 
