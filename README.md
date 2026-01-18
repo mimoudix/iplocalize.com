@@ -12,11 +12,6 @@ Clone the project and navigate to the directory:
 
 ```bash
 git clone https://github.com/mimoudix/iplocalize.com.git
-```
-
-Navigate to the project directory:
-
-```bash
 cd iplocalize.com
 ```
 
