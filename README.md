@@ -57,7 +57,15 @@ Build and start the containers:
 docker-compose up -d && docker exec iplocalize_app bash -c "composer install && yarn install && yarn dev"
 ```
 
-### 4. 📦 Asset Management (Webpack Encore)
+### 4. 🌍 Update GeoIP Database
+
+To make IP lookups work locally, you must download the latest **MaxMind** database. Ensure your `MAXMIND_LICENSE_KEY` is set in .env before running this:
+
+```bash
+docker exec iplocalize_app php bin/console app:geoip:update
+```
+
+### 5. 📦 Asset Management (Webpack Encore)
 
 This project uses **Symfony Webpack Encore**. Use the following commands to manage assets:
 
