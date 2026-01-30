@@ -7,6 +7,7 @@ IPLocalize is a containerized **Symfony** application designed for IP localizati
 To set up the project for local development, ensure that **Docker** is installed on your machine.
 
 ### Prerequisites:
+
 - A **MaxMind License Key** (free). [Sign up here](https://www.maxmind.com/en/geolite2/signup) to generate a key for GeoIP updates.
 
 ### 1. 📂 Clone the Repository
@@ -32,12 +33,12 @@ Configure `.env`:
 
 Update the environment variables to match your local setup.
 
-| Variable | Description | Example |
-| :--- | :--- | :--- |
-| `APP_ENV` | Application environment (`dev` or `prod`). | `dev` |
-| `IP_LOOKUP_ENDPOINT` | Endpoint for IP lookups. If using Docker, this might point to a local service or external API. | `http://localhost/api/v1/lookup` |
-| `LOCK_DSN` | Helper for lock management. | `flock` |
-| `MAXMIND_LICENSE_KEY` | Your MaxMind license key for GeoIP updates. | `YOUR_KEY_HERE` |
+| Variable              | Description                                                                                    | Example                          |
+| :-------------------- | :--------------------------------------------------------------------------------------------- | :------------------------------- |
+| `APP_ENV`             | Application environment (`dev` or `prod`).                                                     | `dev`                            |
+| `IP_LOOKUP_ENDPOINT`  | Endpoint for IP lookups. If using Docker, this might point to a local service or external API. | `http://localhost/api/v1/lookup` |
+| `LOCK_DSN`            | Helper for lock management.                                                                    | `flock`                          |
+| `MAXMIND_LICENSE_KEY` | Your MaxMind license key for GeoIP updates.                                                    | `YOUR_KEY_HERE`                  |
 
 Create `docker-compose.override.yml` file:
 
@@ -53,29 +54,10 @@ cp docker-compose.override.yml.dist docker-compose.override.yml
 Build and start the containers:
 
 ```bash
-docker-compose up -d
+docker-compose up -d && docker exec iplocalize_app bash -c "composer install && yarn install && yarn dev"
 ```
 
-### 4.📥 Install Dependencies (First Run Only)
-
-Because development mode mounts your local folder (which starts empty) over the container, you must run these commands one time to sync the dependencies.
-
-```bash
-# 1. Sync PHP libraries
-docker exec iplocalize_app composer install
-```
-```bash
-# 2. Sync JS libraries
-docker exec iplocalize_app yarn install
-```
-
-```bash
-# 3. Compile assets for the first time
-docker exec iplocalize_app yarn dev
-```
-
-
-### 5. 📦 Asset Management (Webpack Encore)
+### 4. 📦 Asset Management (Webpack Encore)
 
 This project uses **Symfony Webpack Encore**. Use the following commands to manage assets:
 
@@ -158,7 +140,7 @@ git clone https://github.com/mimoudix/iplocalize.com.git
 cd iplocalize.com
 ```
 
-Setup Environment: 
+Setup Environment:
 
 ```bash
 cp .env.dist .env
@@ -166,12 +148,12 @@ cp .env.dist .env
 
 Configure your `.env` variables (ensure `APP_ENV=prod`), you can use a text editor like **vim** or **nano** to edit this file (e.g., `vim .env`).
 
-| Variable | Description | Example |
-| :--- | :--- | :--- |
-| `APP_ENV` | Application environment (`dev` or `prod`). | `prod` |
-| `IP_LOOKUP_ENDPOINT` | Endpoint for IP lookups. If using Docker, this might point to a local service or external API. | `http://localhost/api/v1/lookup` |
-| `LOCK_DSN` | Helper for lock management. | `flock` |
-| `MAXMIND_LICENSE_KEY` | Your MaxMind license key for GeoIP updates. | `YOUR_KEY_HERE` |
+| Variable              | Description                                                                                    | Example                          |
+| :-------------------- | :--------------------------------------------------------------------------------------------- | :------------------------------- |
+| `APP_ENV`             | Application environment (`dev` or `prod`).                                                     | `prod`                           |
+| `IP_LOOKUP_ENDPOINT`  | Endpoint for IP lookups. If using Docker, this might point to a local service or external API. | `http://localhost/api/v1/lookup` |
+| `LOCK_DSN`            | Helper for lock management.                                                                    | `flock`                          |
+| `MAXMIND_LICENSE_KEY` | Your MaxMind license key for GeoIP updates.                                                    | `YOUR_KEY_HERE`                  |
 
 ### 5. 🐳 Build & Start
 
@@ -190,6 +172,7 @@ Run these commands one by one to configure **Apache** inside the container. This
 
 > [!TIP]
 > Missed the path? Retrieve it anytime using this command:
+>
 > ```bash
 > sudo certbot certificates
 > ```
@@ -205,6 +188,7 @@ Update Certificate Paths: (Replace `yourdomain.com` with your actual domain fold
 ```bash
 docker exec iplocalize_app sed -i 's|/etc/ssl/certs/ssl-cert-snakeoil.pem|/etc/letsencrypt/live/yourdomain.com/fullchain.pem|g' /etc/apache2/sites-available/default-ssl.conf
 ```
+
 ```bash
 docker exec iplocalize_app sed -i 's|/etc/ssl/private/ssl-cert-snakeoil.key|/etc/letsencrypt/live/yourdomain.com/privkey.pem|g' /etc/apache2/sites-available/default-ssl.conf
 ```
@@ -239,17 +223,19 @@ Update GeoIP Database:
 It is recommended to add a weekly cron job to keep the IP database up to date.
 
 1.  Install Cron (if not already installed):
+
     ```bash
     sudo apt update
     sudo apt install -y cron
     ```
 
 2.  Open Crontab:
+
     ```bash
     crontab -e
     ```
 
-3. Add the Cron Job:
+3.  Add the Cron Job:
     Paste the following line at the bottom of the file:
 
     ```cron
