@@ -24,10 +24,11 @@ class ApiController extends AbstractController
         summary: 'Lookup your own IP address',
     )]
     public function lookupSelf(
-        Request $request,
-        GeoIPService $geoIPService,
+        Request                                           $request,
+        GeoIPService                                      $geoIPService,
         \Symfony\Component\RateLimiter\RateLimiterFactory $anonymousApiLimiter
-    ): JsonResponse {
+    ): JsonResponse
+    {
         $clientIp = $request->getClientIp();
 
         if (!$clientIp) {
@@ -35,7 +36,7 @@ class ApiController extends AbstractController
                 'success' => false,
                 'code' => 400,
                 'message' => 'Unable to detect client IP.'
-            ], 400);
+            ]);
         }
 
         // Call the main lookup method using the client's IP
@@ -107,8 +108,15 @@ class ApiController extends AbstractController
     {
         // Rate Limiting
         $limiter = $anonymousApiLimiter->create($request->getClientIp());
-        if (false === $limiter->consume(1)->isAccepted()) {
-            throw new \Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException();
+        $limit = $limiter->consume(1);
+        if (false === $limit->isAccepted()) {
+            return $this->json([
+                'success' => false,
+                'code' => 429,
+                'query' => $query,
+                'message' => 'Too many requests. Please try again later.',
+                'retry_after' => $limit->getRetryAfter()->getTimestamp() - time()
+            ]); // Defaults to 200 OK
         }
 
         // Determine if input is an IP or a domain
@@ -123,7 +131,7 @@ class ApiController extends AbstractController
                     'code' => 404,
                     'query' => $query,
                     'message' => 'IP not found in database.'
-                ], 404);
+                ]);
             }
         }
 
@@ -139,7 +147,7 @@ class ApiController extends AbstractController
                     'code' => 404,
                     'query' => $ip,
                     'message' => 'IP not found in database.'
-                ], 404);
+                ]);
             }
 
             $countryCode2 = $countryRecord->country->isoCode ?? null;
@@ -186,7 +194,7 @@ class ApiController extends AbstractController
                 'code' => 404,
                 'query' => $ip,
                 'message' => 'IP not found in database.'
-            ], 404);
+            ]);
         } catch (GeoIp2Exception $e) {
             // GeoIP library error
             return $this->json([
@@ -194,7 +202,7 @@ class ApiController extends AbstractController
                 'code' => 500,
                 'query' => $ip,
                 'message' => 'GeoIP lookup failed. Please try again later.'
-            ], 500);
+            ]);
         } catch (\Exception $e) {
             // Catch-all unexpected errors
             // Optionally log: $this->logger->error($e->getMessage());
@@ -203,7 +211,7 @@ class ApiController extends AbstractController
                 'code' => 500,
                 'query' => $ip,
                 'message' => 'Unexpected error occurred. Please try again later.'
-            ], 500);
+            ]);
         }
     }
 }
