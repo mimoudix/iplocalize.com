@@ -168,7 +168,7 @@ Configure your `.env` variables (ensure `APP_ENV=prod`), you can use a text edit
 Now that certificates exist, build and start the containers.
 
 ```bash
-docker-compose up -d --build
+docker-compose build --build-arg APP_ENV=prod
 ```
 
 ### 6. 🌐 Finalize SSL Configuration
@@ -227,6 +227,12 @@ sudo certbot certonly --standalone --force-renewal -d yourdomain.com -d www.your
 ### 7. 🛠️ Maintenance
 
 Update GeoIP Database:
+
+After you reload Apache, you should add one final command to ensure the database updates immediately
+
+   ```bash
+   docker exec iplocalize_app php bin/console app:geoip:update
+   ```
 
 It is recommended to add a weekly cron job to keep the IP database up to date.
 
