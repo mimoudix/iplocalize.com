@@ -42,7 +42,8 @@ jobs:
             # Clean up old images, containers, networks, and cache
             docker system prune -af --volumes=false
             docker builder prune -f
-            docker-compose up -d --build --force-recreate
+            docker-compose build --build-arg APP_ENV=prod
+            docker-compose up -d --force-recreate
             docker cp docker/apache/default-ssl.conf iplocalize_app:/etc/apache2/sites-available/default-ssl.conf
             # enable ssl
             docker exec iplocalize_app a2enmod ssl
