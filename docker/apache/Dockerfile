@@ -1,6 +1,6 @@
 FROM php:8.3-apache
 
-# Install system dependencies for Symfony (e.g. zip, unzip, git, libzip)
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     libzip-dev zip unzip vim \
     && docker-php-ext-install pdo_mysql zip
@@ -10,33 +10,37 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 # Enable Apache modules (rewrite)
 RUN a2enmod rewrite
-
 COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
-
-# Enable the sites
 RUN a2ensite 000-default.conf
 
-# Set working directory
 WORKDIR /var/www/html
 
-# 👇 Copy entire Symfony project
+# Copy the project files
 COPY . .
 
-# ✅ Now everything (bin/, src/, vendor/) is there
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+# --- DYNAMIC ARGUMENT LOGIC ---
+# This is set to 'prod' by your GitHub Workflow
+ARG APP_ENV=dev
+ENV APP_ENV=${APP_ENV}
 
-# uncomment this if you dont want to push /public/build and build it manually on prod server
-# Install Node.js + yarn + build frontend assets
+# If APP_ENV is prod, we skip dev dependencies (like maker-bundle)
+RUN if [ "$APP_ENV" = "prod" ]; then \
+        composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev; \
+    else \
+        composer install --no-interaction --prefer-dist; \
+    fi
+
+# Build frontend assets
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs
 RUN npm install -g yarn
 RUN yarn install
-RUN yarn encore production
+RUN if [ "$APP_ENV" = "prod" ]; then yarn encore production; else yarn encore dev; fi
 
 EXPOSE 80 443
 
 RUN chown -R www-data:www-data var vendor
 RUN chmod -R 775 var
 
-# Clear and warm up cache
-RUN php bin/console cache:clear
-RUN php bin/console cache:warmup
+# Warm up cache based on the current environment
+RUN php bin/console cache:clear --env=${APP_ENV}
+RUN php bin/console cache:warmup --env=${APP_ENV}
