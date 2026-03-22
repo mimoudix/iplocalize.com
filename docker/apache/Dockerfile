@@ -38,8 +38,9 @@ RUN if [ "$APP_ENV" = "prod" ]; then yarn encore production; else yarn encore de
 
 EXPOSE 80 443
 
-RUN chown -R www-data:www-data var vendor
-RUN chmod -R 775 var
+# This makes sure Apache (www-data) owns the files created by root
+RUN chown -R www-data:www-data /var/www/html/var /var/www/html/vendor
+RUN chmod -R 775 /var/www/html/var
 
 # Warm up cache based on the current environment
 RUN php bin/console cache:clear --env=${APP_ENV}
