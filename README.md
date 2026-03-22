@@ -54,7 +54,7 @@ cp docker-compose.override.yml.dist docker-compose.override.yml
 Build and start the containers:
 
 ```bash
-docker-compose up -d && docker exec iplocalize_app bash -c "composer install && yarn install && yarn dev"
+docker-compose up -d --build  && docker exec iplocalize_app bash -c "composer install && yarn install && yarn dev"
 ```
 
 ### 4. 🌍 Update GeoIP Database
