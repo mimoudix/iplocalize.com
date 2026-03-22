@@ -36,12 +36,17 @@ RUN npm install -g yarn
 RUN yarn install
 RUN if [ "$APP_ENV" = "prod" ]; then yarn encore production; else yarn encore dev; fi
 
-EXPOSE 80 443
+# 1. Ensure the directory structure exists
+RUN mkdir -p var/cache var/log
 
-# This makes sure Apache (www-data) owns the files created by root
-RUN chown -R www-data:www-data /var/www/html/var /var/www/html/vendor
-RUN chmod -R 775 /var/www/html/var
-
-# Warm up cache based on the current environment
+# 2. Warm up cache FIRST (while still root)
 RUN php bin/console cache:clear --env=${APP_ENV}
 RUN php bin/console cache:warmup --env=${APP_ENV}
+
+# 3. PERFORM THE GLOBAL HANDOVER LAST
+# This ensures even the files created by the cache:warmup 
+# command are now owned by Apache.
+RUN chown -R www-data:www-data /var/www/html
+RUN chmod -R 775 /var/www/html/var /var/www/html/vendor
+
+EXPOSE 80 443
