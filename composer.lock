@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "05146c5b98e8080e3db527ec28c2da83",
+    "content-hash": "f5decf77b60e818f5a5b9862a5f5d459",
     "packages": [
         {
             "name": "composer/ca-bundle",
@@ -156,6 +156,7 @@
                 "issues": "https://github.com/doctrine/annotations/issues",
                 "source": "https://github.com/doctrine/annotations/tree/2.0.2"
             },
+            "abandoned": true,
             "time": "2024-09-05T10:17:24+00:00"
         },
         {
