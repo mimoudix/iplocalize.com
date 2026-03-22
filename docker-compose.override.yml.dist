@@ -3,7 +3,3 @@ services:
     # Mount  local folder so you can edit code
     volumes:
       - .:/var/www/html
-    # Force Development Settings
-    environment:
-      APP_ENV: dev
-      APP_DEBUG: 1
